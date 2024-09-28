@@ -1,0 +1,48 @@
+# Django (latest stable version)
+Django>=4.2.5,<5.0
+
+# Celery (for asynchronous task queues)
+celery>=5.3.0,<6.0
+
+# Django REST Framework (for building REST APIs)
+djangorestframework>=3.14.0,<4.0
+
+# Django Allauth (for authentication)
+django-allauth>=0.56.0,<1.0
+
+# Anymail (for integrating email services like SendGrid, Mailgun, etc.)
+django-anymail>=10.1,<11.0
+
+# Django Channels (for WebSockets and real-time communication)
+channels>=4.0.0,<5.0
+channels-redis>=4.0.0,<5.0  # Optional, if using Redis as the backend
+
+# Pytest (for testing)
+pytest>=7.4.0,<8.0
+pytest-django>=4.5.2,<5.0
+pytest-cov>=4.1.0,<5.0
+
+
+psycopg2==2.9.7
+
+watchdog>=2.1.0,<3.0
+
+# Django REST Framework for API functionality
+djangorestframework>=3.14.0,<4.0
+
+# JWT Authentication for Django REST Framework
+djangorestframework-simplejwt>=5.2.2,<6.0
+
+# Django Channels for WebSocket support
+channels>=4.0.0,<5.0
+
+# Optional: If you are using Redis for Channels
+channels-redis>=4.0.0,<5.0
+
+#Image plugin
+Pillow>=9.1.0,<10.0
+
+pytest>=7.4.0,<8.0
+pytest-django>=4.5.2,<5.0
+django-filter>=22.1,<23.0
+
