@@ -49,6 +49,19 @@ INSTALLED_APPS = [
     'anymail'
 ]
 
+
+# Celery Configuration
+# Celery Configuration
+CELERY_BROKER_URL = 'redis://redis:6379/0'  # Use Redis for the broker
+CELERY_RESULT_BACKEND = 'redis://redis:6379/0'  # Use Redis as the result backend
+
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30  # Time limit for tasks (optional)
+
+
 # Anymail configuration for SendGrid
 EMAIL_BACKEND = "anymail.backends.sendgrid.EmailBackend"  # Replace with your provider's backend
 ANYMAIL = {

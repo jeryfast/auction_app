@@ -8,6 +8,7 @@ from decouple import config  # To use environment variables
 import os
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
+from .tasks import send_auction_winner_email, send_auction_creator_email
 
 class Auction(models.Model):
     name = models.CharField(max_length=255)
@@ -31,48 +32,25 @@ class Auction(models.Model):
         return highest_bid.user if highest_bid else None
     
     def end_auction(self):
-        if not self.is_active:
-            try:
-                winner = self.get_winner()
-                highest_bid = self.bids.order_by('-amount').first()
+            winner = self.get_winner()
+            highest_bid = self.bids.order_by('-amount').first()
 
-                if winner:
-                    # Notify auction winner using Anymail
-                    winner_message = AnymailMessage(
-                        subject="Congratulations! You've won the auction!",
-                        body=f'Hi {winner.username}, you have won the auction "{self.name}"!',
-                        from_email=config('SENDGRID_FROM'),
-                        to=[winner.email],
-                    )
-                    winner_message.send()
-                
-              
-                # Notify auction creator about auction completion and winner
-                subject="Your auction has ended",
-                body=(
-                        f'Hi {self.creator.username}, your auction "{self.name}" has ended.\n'
-                        f'The winner is {winner.username} with a bid of {highest_bid.amount}.\n'
-                        if winner else 'No one placed a bid.'
-                    ),
-                from_email=config('SENDGRID_FROM'),
-                to=[self.creator.email],
-                creator_message = AnymailMessage(
-                    subject="Your auction has ended",
-                    body=(
-                        f'Hi {self.creator.username}, your auction "{self.name}" has ended.\n'
-                        f'The winner is {winner.username} with a bid of {highest_bid.amount}.\n'
-                        if winner else 'No one placed a bid.'
-                    ),
-                    from_email=config('SENDGRID_FROM'),
-                    to=[self.creator.email],
+            if winner:
+                # Send email to winner asynchronously
+                send_auction_winner_email.delay(
+                    winner_email=winner.email,
+                    winner_username=winner.username,
+                    auction_name=self.name
                 )
-                print(body)
-                print(from_email, to)
-                
-                creator_message.send()
-            except AnymailAPIError as e:
-                # Log the detailed error message
-                print(f"Anymail API Error: {e}")
+
+            # Send email to creator asynchronously
+            send_auction_creator_email.delay(
+                creator_email=self.creator.email,
+                creator_username=self.creator.username,
+                auction_name=self.name,
+                winner_username=winner.username if winner else "No one",
+                highest_bid_amount=highest_bid.amount if winner else "No bids"
+            )
 
     def __str__(self):
         return self.name

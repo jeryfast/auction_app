@@ -17,13 +17,13 @@ def api_client():
 def create_user(db):
         return User.objects.create_user(username=config('TEST_USER_NAME'),
                                     password=config('TEST_USER_PASSWORD'),
-                                    email=config('SENDGRID_FROM'))
+                                    email=config('TEST_USER_EMAIL'))
 
 @pytest.fixture
 def create_user_to_bid(db):
         return User.objects.create_user(username=config('TEST_USER_NAME1'),
                                     password=config('TEST_USER_PASSWORD1'),
-                                    email=config('SENDGRID_FROM'))
+                                    email=config('TEST_USER_EMAIL1'))
 
 @pytest.fixture
 def create_auction(create_user):

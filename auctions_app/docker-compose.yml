@@ -32,11 +32,23 @@ services:
       POSTGRES_HOST: db
     depends_on:
       - db
+      - redis
 
   redis:
     image: redis:6.2
     ports:
       - "6379:6379"  # Expose Redis on the default port
+
+  celery:
+    build: .
+    command: celery -A auctions_app worker --loglevel=info  # Specify Celery command
+    volumes:
+      - .:/app
+    depends_on:
+      - redis  # Celery needs Redis
+      - web    # Celery needs access to Django codebase
+    environment:
+      DJANGO_SETTINGS_MODULE: auctions_app.settings
 
 volumes:
   postgres_data:
