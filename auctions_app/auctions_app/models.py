@@ -32,25 +32,30 @@ class Auction(models.Model):
         return highest_bid.user if highest_bid else None
     
     def end_auction(self):
-            winner = self.get_winner()
-            highest_bid = self.bids.order_by('-amount').first()
+        winner = self.get_winner()
+        highest_bid = self.bids.order_by('-amount').first()
 
-            if winner:
-                # Send email to winner asynchronously
-                send_auction_winner_email.delay(
-                    winner_email=winner.email,
-                    winner_username=winner.username,
-                    auction_name=self.name
-                )
+        print(f"Dispatching email to {winner.email}")
+        print(f"Dispatching email to {self.creator.email}")
 
-            # Send email to creator asynchronously
-            send_auction_creator_email.delay(
-                creator_email=self.creator.email,
-                creator_username=self.creator.username,
-                auction_name=self.name,
-                winner_username=winner.username if winner else "No one",
-                highest_bid_amount=highest_bid.amount if winner else "No bids"
+        if winner:
+            # Send email to winner asynchronously
+            winner_task = send_auction_winner_email.delay(
+                winner_email=winner.email,
+                winner_username=winner.username,
+                auction_name=self.name
             )
+
+        # Send email to creator asynchronously
+        creator_task = send_auction_creator_email.delay(
+            creator_email=self.creator.email,
+            creator_username=self.creator.username,
+            auction_name=self.name,
+            winner_username=winner.username if winner else "No one",
+            highest_bid_amount=highest_bid.amount if winner else "No bids"
+        )
+
+        return winner_task, creator_task
 
     def __str__(self):
         return self.name

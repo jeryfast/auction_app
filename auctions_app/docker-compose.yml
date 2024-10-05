@@ -23,7 +23,7 @@ services:
     ports:
       - "3000:8000"
     environment:
-      DJANGO_SETTINGS_MODULE: auctions_app.settings
+      DJANGO_SETTINGS_MODULE: auctions_app.test_settings
       DEBUG: '1'
       DJANGO_ALLOWED_HOSTS: localhost
       POSTGRES_DB: auctions_db
@@ -48,7 +48,7 @@ services:
       - redis  # Celery needs Redis
       - web    # Celery needs access to Django codebase
     environment:
-      DJANGO_SETTINGS_MODULE: auctions_app.settings
+      DJANGO_SETTINGS_MODULE: auctions_app.test_settings
 
 volumes:
   postgres_data:
