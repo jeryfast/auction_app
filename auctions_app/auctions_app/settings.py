@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+from decouple import config  # To use environment variables
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -45,7 +46,18 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'django_filters',
+    'anymail'
 ]
+
+# Anymail configuration for SendGrid
+EMAIL_BACKEND = "anymail.backends.sendgrid.EmailBackend"  # Replace with your provider's backend
+ANYMAIL = {
+    "SENDGRID_API_KEY": config('SENDGRID_API_KEY'),  # Load the API key from .env
+    "DEBUG_API_REQUESTS": True,  # This logs detailed API request and response info
+}
+
+DEFAULT_FROM_EMAIL = config('SENDGRID_FROM')
+
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

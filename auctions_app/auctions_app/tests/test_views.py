@@ -13,6 +13,7 @@ from PIL import Image
 import tempfile
 import io
 import os
+from decouple import config  # To use environment variables
 
 
 @pytest.fixture
@@ -21,7 +22,8 @@ def api_client():
 
 @pytest.fixture
 def create_user(db):
-    return User.objects.create_user(username="testuser", password="testpass")
+        return User.objects.create_user(username=config('TEST_USER_NAME'),
+                                    password=config('TEST_USER_PASSWORD'))
 
 @pytest.mark.django_db
 def test_user_creation(create_user):
@@ -76,7 +78,10 @@ def test_get_auction_detail(api_client, create_auction):
 def test_post_auction_authenticated(api_client, create_user):
     # Obtain JWT token for the user
     url = reverse('token_obtain_pair')
-    response = api_client.post(url, {'username': 'testuser', 'password': 'testpass'}, format='json')
+    response = api_client.post(url, {
+        'username': config('TEST_USER_NAME'),
+        'password': config('TEST_USER_PASSWORD')
+    }, format='json')
     assert response.status_code == 200
     token = response.data['access']
 
@@ -129,7 +134,10 @@ def test_post_auction_unauthenticated(api_client):
 def test_post_bid_on_auction(api_client, create_user, create_auction):
     # Log in to get the token
     login_url = reverse('token_obtain_pair')
-    response = api_client.post(login_url, {'username': 'testuser', 'password': 'testpass'}, format='json')
+    response = api_client.post(login_url, {
+        'username': config('TEST_USER_NAME'),
+        'password': config('TEST_USER_PASSWORD')
+    }, format='json')
     token = response.data['access']
 
     # Add token to the headers
@@ -173,7 +181,8 @@ def create_multiple_auctions(create_user):
 @pytest.mark.django_db
 def test_list_auctions_with_filtering_ordering_paging(api_client, create_user, create_multiple_auctions):
     # Log in the test user
-    api_client.login(username='testuser', password='testpass')
+    api_client.login(username=config('TEST_USER_NAME'), password=config('TEST_USER_PASSWORD'))
+
 
     url = reverse('auction-list')
 

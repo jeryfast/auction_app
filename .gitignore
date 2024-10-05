@@ -2,3 +2,4 @@
 /auctions_app/auction_images
 /venv
 /auctions_app/auctions_app/__pycache__
+auctions_app/.env
